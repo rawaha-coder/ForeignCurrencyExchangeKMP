@@ -1,14 +1,12 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# Foreign Currency Exchange App 
 
-* `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
+## Kotlin Multiplatform iOS Android App Development
 
-* `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+Foreign Currency Exchange is a sample app using the Kotlin Multiplatform | MVVM Clean Architecture | Ktor | MongoDB
+
+Compose Multiplatform:
+What It Is: Compose Multiplatform is an extension of Jetpack Compose, Google’s modern toolkit for building native UIs in Android, which allows you to create user interfaces that work across multiple platforms like Android, iOS, desktop, and the web using a single codebase
 
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+
+

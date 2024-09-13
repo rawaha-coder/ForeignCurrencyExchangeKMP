@@ -15,6 +15,17 @@ compose-plugin = "1.6.11"
 junit = "4.13.2"
 kotlin = "2.0.20"
 
+multiplatform-settings = "1.2.0"
+voyager-version = "1.0.0"
+koin-core = "3.5.6"
+
+ktor_version = "2.3.12"
+realm = "2.0.0"
+coroutines-core = "1.9.0"
+stately-common = "2.0.0"
+
+kotlinx-datetime = "0.6.1"
+
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -29,9 +40,38 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 
+
+
+
+multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatform-settings" }
+multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatform-settings" }
+
+mongodb-realm = { module = "io.realm.kotlin:library-base", version.ref = "realm" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines-core" }
+stately-common = { module = "co.touchlab:stately-common", version.ref = "stately-common" }
+
+voyager-navigator = {  module = "cafe.adriel.voyager:voyager-navigator",  version.ref = "voyager-version" }
+voyager-screen-model = {  module = "cafe.adriel.voyager:voyager-screenmodel",  version.ref = "voyager-version" }
+voyager-transitions = {  module = "cafe.adriel.voyager:voyager-transitions",  version.ref = "voyager-version" }
+voyager-koin = {  module = "cafe.adriel.voyager:voyager-koin",  version.ref = "voyager-version" }
+
+koin-core = {  module = "io.insert-koin:koin-core",  version.ref = "koin-core" }
+
+ktor-client-core = {  module = "io.ktor:ktor-client-core", version.ref = "ktor_version" }
+ktor-client-content-negotiation = {  module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor_version" }
+ktor-serialization-kotlinx-json = {  module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor_version" }
+ktor-client-android = {  module = "io.ktor:ktor-client-android", version.ref = "ktor_version" }
+ktor-client-darwin = {  module = "io.ktor:ktor-client-darwin", version.ref = "ktor_version" }
+
+kotlinx-datetime = {  module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+
+kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+realm-plugin = { id = "io.realm.kotlin", version.ref = "realm" }
