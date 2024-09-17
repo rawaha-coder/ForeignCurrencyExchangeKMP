@@ -1,6 +1,8 @@
 package com.rawahacoder.foreigncurrencyexchangekmp.data.remote.thirdpartyapi
 
+import com.rawahacoder.foreigncurrencyexchangekmp.data.local.SharedPreferencesImpl
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.ForeignCurrencyExchangeApiService
+import com.rawahacoder.foreigncurrencyexchangekmp.domain.SharedPreferencesRepo
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.ApiResponse
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyObject
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RequestState
@@ -14,7 +16,9 @@ import io.ktor.client.request.headers
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-class ForeignCurrencyExchangeApiServiceImpl: ForeignCurrencyExchangeApiService {
+class ForeignCurrencyExchangeApiServiceImpl(
+    private val preferencesImpl: SharedPreferencesRepo
+): ForeignCurrencyExchangeApiService {
 
     private val httpClient = HttpClient{
         install(ContentNegotiation){
@@ -44,9 +48,12 @@ class ForeignCurrencyExchangeApiServiceImpl: ForeignCurrencyExchangeApiService {
 
             if (responseFromApi.status.value == 200){
 
-                println("Response from Api =" + responseFromApi.body<String>())
-
                 val responseDataFromApi = Json.decodeFromString<ApiResponse>(responseFromApi.body())
+
+                val whenLastUpdated = responseDataFromApi.meta.last_updated_at
+
+                preferencesImpl.storedWhenLastUpdated(whenLastUpdated)
+
                 RequestState.Success(data = responseDataFromApi.data.values.toList())
             }else{
                 RequestState.Error("HTTP Error: ${responseFromApi.status}")
