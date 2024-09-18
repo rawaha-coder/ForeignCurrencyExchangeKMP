@@ -1,10 +1,13 @@
 package com.rawahacoder.foreigncurrencyexchangekmp.ui.presentation.component
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,29 +15,50 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyKey
+import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyObject
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RateCondition
+import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RequestState
 import com.rawahacoder.foreigncurrencyexchangekmp.getPlatform
 import com.rawahacoder.foreigncurrencyexchangekmp.ui.theme.headerColor
 import com.rawahacoder.foreigncurrencyexchangekmp.ui.theme.staleColor
 import com.rawahacoder.foreigncurrencyexchangekmp.utility.showCurrentDateTime
 import foreigncurrencyexchangekmp.composeapp.generated.resources.Res
 import foreigncurrencyexchangekmp.composeapp.generated.resources.money_exchange
+import foreigncurrencyexchangekmp.composeapp.generated.resources.moneyexchange
 
 import org.jetbrains.compose.resources.painterResource
 
 
+
 @Composable
-fun HomePageHeader(status: RateCondition, onRatesRefresh: () -> Unit){
+fun HomePageHeader(
+    status: RateCondition,
+    source: RequestState<CurrencyObject>,
+    target: RequestState<CurrencyObject>,
+    amountNumber: Double,
+    onAmountNumberChange: (Double) -> Unit,
+    onRatesRefresh: () -> Unit,
+    onSwitchClick: () -> Unit
+){
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,16 +67,34 @@ fun HomePageHeader(status: RateCondition, onRatesRefresh: () -> Unit){
             .padding(top = if (getPlatform().name == "Android") 0.dp else 26.dp)
             .padding(all = 26.dp)
     ) {
+
         Spacer(modifier = Modifier.height(26.dp))
 
         RatesCondition(status = status, onRatesRefresh = onRatesRefresh)
+
+        Spacer(modifier = Modifier.height(26.dp))
+
+        CurrencyInputs(
+            source = source,
+            target = target,
+            onSwitchClick = onSwitchClick
+        )
+
+        Spacer(modifier = Modifier.height(26.dp))
+
+        InputAmountNumber(
+            amountNumber = amountNumber,
+            onAmountNumberChange = onAmountNumberChange
+        )
 
     }
 
 }
 
 @Composable
-fun RatesCondition(status: RateCondition, onRatesRefresh: () -> Unit) {
+fun RatesCondition(
+    status: RateCondition,
+    onRatesRefresh: () -> Unit) {
 
     Row (
         modifier = Modifier.fillMaxWidth(),
@@ -98,4 +140,142 @@ fun RatesCondition(status: RateCondition, onRatesRefresh: () -> Unit) {
 
     }
 
+}
+
+@Composable
+fun RowScope.ViewCurrency(
+    titleHolder: String,
+    currencyName: RequestState<CurrencyObject>,
+    onClick: () -> Unit
+){
+    Column(
+    modifier = Modifier.weight(1f)
+    ){
+        Text(
+            modifier = Modifier.padding(start = 14.dp),
+            text = titleHolder,
+            fontSize = MaterialTheme.typography.bodySmall.fontSize,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(size = 10.dp))
+                .background(color = Color.White.copy(alpha = 0.05f))
+                .height(54.dp)
+                .clickable { onClick() },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ){
+            if (currencyName.isSuccess()){
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    painter = painterResource(CurrencyKey.valueOf(currencyName.getSuccessData().code).flagCountry),
+                    contentDescription = "Country flag",
+                    tint = Color.Unspecified
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = CurrencyKey.valueOf(currencyName.getSuccessData().code).name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    color = Color.White
+                )
+
+            }
+
+        }
+    }
+}
+
+@Composable
+fun CurrencyInputs(
+    source: RequestState<CurrencyObject>,
+    target: RequestState<CurrencyObject>,
+    onSwitchClick: () -> Unit
+){
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ViewCurrency(
+            titleHolder = "From currency",
+            currencyName = source,
+            onClick = {if (source.isSuccess()) {
+
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        IconButton(
+            modifier = Modifier.padding(top = 24.dp),
+            onClick = {
+                onSwitchClick()
+            }
+        ){
+            Icon(
+                //modifier = Modifier.size(52.dp),
+                painter = painterResource(Res.drawable.moneyexchange),
+                contentDescription = "Switch currency icon",
+                tint = Color.White
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        ViewCurrency(
+            titleHolder = "to",
+            currencyName = target,
+            onClick = {if (source.isSuccess()) {
+
+            }
+            }
+        )
+    }
+}
+
+@Composable
+fun InputAmountNumber(
+    amountNumber: Double,
+    onAmountNumberChange: (Double) -> Unit
+){
+
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(size = 9.dp))
+            .animateContentSize()
+            .height(54.dp),
+        value = "$amountNumber",
+        onValueChange = { onAmountNumberChange(it.toDouble()) },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.White.copy(alpha = 0.05f),
+            unfocusedContainerColor = Color.White.copy(alpha = 0.05f),
+            disabledContainerColor = Color.White.copy(alpha = 0.05f),
+            errorContainerColor = Color.White.copy(alpha = 0.05f),
+            focusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            cursorColor = Color.White
+        ),
+        textStyle = TextStyle(
+            color = Color.White,
+            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        ),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Decimal
+        )
+
+    )
 }

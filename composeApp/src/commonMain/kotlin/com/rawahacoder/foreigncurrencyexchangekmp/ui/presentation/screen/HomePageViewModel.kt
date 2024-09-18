@@ -8,7 +8,9 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.rawahacoder.foreigncurrencyexchangekmp.data.local.SharedPreferencesImpl
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.ForeignCurrencyExchangeApiService
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.SharedPreferencesRepo
+import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyObject
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RateCondition
+import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RequestState
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
@@ -23,6 +25,12 @@ class HomePageViewModel(
 ): ScreenModel {
     private var _rateRefreshStatus : MutableState<RateCondition> = mutableStateOf(RateCondition.IdleCondition)
     val rateRefreshStatus: State<RateCondition> = _rateRefreshStatus
+
+    private var _currencyFrom: MutableState<RequestState<CurrencyObject>> = mutableStateOf(RequestState.Idle)
+    val sourceCurrency: State<RequestState<CurrencyObject>> = _currencyFrom
+
+    private var _currencyTo: MutableState<RequestState<CurrencyObject>> = mutableStateOf(RequestState.Idle)
+    val targetCurrency: State<RequestState<CurrencyObject>> = _currencyTo
 
     init {
         screenModelScope.launch {
