@@ -39,7 +39,7 @@ class HomePage: Screen {
                     amountDigits = it
                 },
                 onSwitchClick = {
-
+                    screenModel.passEvent(HomePageUIEvent.CurrenciesSwitch)
                 },
                 onRatesRefresh = {
                     screenModel.passEvent(HomePageUIEvent.RefreshRatesEvent)

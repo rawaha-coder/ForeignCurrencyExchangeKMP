@@ -1,6 +1,8 @@
 package com.rawahacoder.foreigncurrencyexchangekmp.ui.presentation.component
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,10 +26,15 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,6 +44,7 @@ import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyKey
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyObject
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RateCondition
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RequestState
+import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.ShowResult
 import com.rawahacoder.foreigncurrencyexchangekmp.getPlatform
 import com.rawahacoder.foreigncurrencyexchangekmp.ui.theme.headerColor
 import com.rawahacoder.foreigncurrencyexchangekmp.ui.theme.staleColor
@@ -170,25 +178,31 @@ fun RowScope.ViewCurrency(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ){
-            if (currencyName.isSuccess()){
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(CurrencyKey.valueOf(currencyName.getSuccessData().code).flagCountry),
-                    contentDescription = "Country flag",
-                    tint = Color.Unspecified
-                )
 
-                Spacer(modifier = Modifier.height(8.dp))
+            currencyName.ShowResult(
+                onSuccess = { data ->
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(
+                            CurrencyKey.valueOf(
+                                data.code
+                            ).flagCountry),
+                        contentDescription = "Country flag",
+                        tint = Color.Unspecified
+                    )
 
-                Text(
-                    text = CurrencyKey.valueOf(currencyName.getSuccessData().code).name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    color = Color.White
-                )
+                    Spacer(modifier = Modifier.height(8.dp))
 
-            }
-
+                    Text(
+                        text = CurrencyKey.valueOf(
+                            data.code
+                        ).name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        color = Color.White
+                    )
+                }
+            )
         }
     }
 }
@@ -199,6 +213,13 @@ fun CurrencyInputs(
     target: RequestState<CurrencyObject>,
     onSwitchClick: () -> Unit
 ){
+
+    var animationInitialized by remember { mutableStateOf(false) }
+
+    val rotationAnimation by animateFloatAsState (
+        targetValue = if (animationInitialized) 180f else 0f,
+        animationSpec = tween(durationMillis = 500)
+    )
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -216,8 +237,11 @@ fun CurrencyInputs(
         Spacer(modifier = Modifier.height(8.dp))
 
         IconButton(
-            modifier = Modifier.padding(top = 24.dp),
+            modifier = Modifier
+                .padding(top = 24.dp)
+                .graphicsLayer { rotationY = rotationAnimation },
             onClick = {
+                animationInitialized = !animationInitialized
                 onSwitchClick()
             }
         ){

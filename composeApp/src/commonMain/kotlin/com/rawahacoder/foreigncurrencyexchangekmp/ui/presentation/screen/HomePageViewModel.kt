@@ -2,6 +2,7 @@ package com.rawahacoder.foreigncurrencyexchangekmp.ui.presentation.screen
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.core.model.ScreenModel
@@ -13,6 +14,8 @@ import com.rawahacoder.foreigncurrencyexchangekmp.domain.SharedPreferencesRepo
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyObject
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RateCondition
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RequestState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -20,6 +23,7 @@ import kotlinx.datetime.Clock
 
 sealed class HomePageUIEvent{
     data object RefreshRatesEvent : HomePageUIEvent()
+    data object CurrenciesSwitch : HomePageUIEvent()
 }
 
 class HomePageViewModel(
@@ -42,7 +46,8 @@ class HomePageViewModel(
     init {
         screenModelScope.launch {
             readNewRates()
-
+            retrieveFromCurrency()
+            retrieveToCurrency()
         }
     }
 
@@ -96,10 +101,49 @@ class HomePageViewModel(
 
     fun passEvent(event: HomePageUIEvent){
         when(event){
-            is HomePageUIEvent.RefreshRatesEvent ->{
+            is HomePageUIEvent.RefreshRatesEvent -> {
                 screenModelScope.launch {
                     readNewRates()
                 }
+            }
+            is HomePageUIEvent.CurrenciesSwitch -> {
+                currenciesSwitch()
+            }
+        }
+    }
+
+    private fun currenciesSwitch() {
+        val from = _currencyFrom.value
+        val to = _currencyTo.value
+
+        _currencyFrom.value = to
+        _currencyTo.value = from
+    }
+
+    private fun retrieveFromCurrency(){
+        screenModelScope.launch(Dispatchers.Main) {
+            preferences.retrieveFromCurrencyKey().collectLatest { currencyKey ->
+                val selectedCurrency = _overallCurrencies.find { it.code == currencyKey.name }
+                if (selectedCurrency != null){
+                    _currencyFrom.value = RequestState.Success(data = selectedCurrency)
+                }else{
+                    _currencyFrom.value = RequestState.Error(message = "Selected currency not found")
+                }
+
+            }
+        }
+    }
+
+    private fun retrieveToCurrency(){
+        screenModelScope.launch(Dispatchers.Main) {
+            preferences.retrieveToCurrencyKey().collectLatest { currencyKey ->
+                val selectedCurrency = _overallCurrencies.find { it.code == currencyKey.name }
+                if (selectedCurrency != null){
+                    _currencyTo.value = RequestState.Success(data = selectedCurrency)
+                }else{
+                    _currencyTo.value = RequestState.Error(message = "Selected currency not found")
+                }
+
             }
         }
     }
