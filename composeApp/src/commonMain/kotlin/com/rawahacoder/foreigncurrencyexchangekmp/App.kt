@@ -13,7 +13,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
 
-    initKoin()
+   initKoin()
 
     MaterialTheme{
         Navigator(HomePage())

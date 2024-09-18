@@ -1,9 +1,10 @@
 package com.rawahacoder.foreigncurrencyexchangekmp.data.remote.thirdpartyapi
 
-import com.rawahacoder.foreigncurrencyexchangekmp.data.local.SharedPreferencesImpl
+
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.ForeignCurrencyExchangeApiService
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.SharedPreferencesRepo
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.ApiResponse
+import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyKey
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyObject
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RequestState
 import io.ktor.client.HttpClient
@@ -50,11 +51,22 @@ class ForeignCurrencyExchangeApiServiceImpl(
 
                 val responseDataFromApi = Json.decodeFromString<ApiResponse>(responseFromApi.body())
 
+                val currencyKeysAvailable = responseDataFromApi.data.keys.filter {
+                    CurrencyKey.entries.map {
+                        key -> key.name
+                    }.toSet().contains(it)
+                }
+
+                val currencyAvailableNow = responseDataFromApi.data.values.filter {
+                    currency -> currencyKeysAvailable.contains(currency.code)
+                }
+
                 val whenLastUpdated = responseDataFromApi.meta.last_updated_at
 
                 preferencesImpl.storedWhenLastUpdated(whenLastUpdated)
 
-                RequestState.Success(data = responseDataFromApi.data.values.toList())
+                RequestState.Success(data = currencyAvailableNow)
+
             }else{
                 RequestState.Error("HTTP Error: ${responseFromApi.status}")
             }
