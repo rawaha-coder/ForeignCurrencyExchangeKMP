@@ -1,8 +1,10 @@
 package com.rawahacoder.foreigncurrencyexchangekmp.di
 
+import com.rawahacoder.foreigncurrencyexchangekmp.data.local.MongoDBRepoImpl
 import com.rawahacoder.foreigncurrencyexchangekmp.data.local.SharedPreferencesImpl
 import com.rawahacoder.foreigncurrencyexchangekmp.data.remote.thirdpartyapi.ForeignCurrencyExchangeApiServiceImpl
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.ForeignCurrencyExchangeApiService
+import com.rawahacoder.foreigncurrencyexchangekmp.domain.MongoDBRepo
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.SharedPreferencesRepo
 import com.rawahacoder.foreigncurrencyexchangekmp.ui.presentation.screen.HomePageViewModel
 import org.koin.dsl.module
@@ -25,25 +27,15 @@ val moduleApplication = module {
 
     single<SharedPreferencesRepo> { SharedPreferencesImpl(settings = get()) }
 
+    single<MongoDBRepo> { MongoDBRepoImpl() }
+
     single<ForeignCurrencyExchangeApiService> { ForeignCurrencyExchangeApiServiceImpl(preferencesImpl = get()) }
 
     factory {
         HomePageViewModel(
             preferences = get(),
-            apiService = get()
+            apiService = get(),
+            mongoDBRepo = get()
         )
     }
 }
-
-//val provideSharedPreferencesRepo = module {
-//    singleOf(::SharedPreferencesImpl).bind(SharedPreferencesRepo::class)
-//}
-//
-//val provideForeignCurrencyExchangeApiService = module {
-//    singleOf(::ForeignCurrencyExchangeApiServiceImpl).bind(ForeignCurrencyExchangeApiService::class)
-//}
-//
-//val provideViewModelModule = module {
-//    viewModelOf(::CreateNoteViewModel)
-//    viewModelOf(::HomePageViewModel)
-//}

@@ -1,6 +1,9 @@
 package com.rawahacoder.foreigncurrencyexchangekmp.domain.model
 
+import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.serialization.Serializable
+import org.mongodb.kbson.ObjectId
 
 @Serializable
 data class ApiResponse(
@@ -14,7 +17,13 @@ data class MedaDataFromApi(
 )
 
 @Serializable
-data class CurrencyObject(
-    val code: String,
-    val value: Double
-)
+open class CurrencyObject: RealmObject{
+
+    companion object
+
+    @PrimaryKey
+    var docID: ObjectId = ObjectId()
+    var code: String = ""
+    var value: Double = 0.0
+
+}
