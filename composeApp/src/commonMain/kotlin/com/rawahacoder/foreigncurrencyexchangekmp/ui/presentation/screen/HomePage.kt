@@ -15,6 +15,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyKind
 import com.rawahacoder.foreigncurrencyexchangekmp.ui.presentation.component.ChooseCurrencyDialog
+import com.rawahacoder.foreigncurrencyexchangekmp.ui.presentation.component.HomePageBody
 import com.rawahacoder.foreigncurrencyexchangekmp.ui.presentation.component.HomePageHeader
 import com.rawahacoder.foreigncurrencyexchangekmp.ui.theme.surfaceColor
 
@@ -24,7 +25,7 @@ class HomePage: Screen {
 
         val screenModel = getScreenModel<HomePageViewModel>()
 
-        val selectedCurrencyType: CurrencyKind by remember {
+        var selectedCurrencyType: CurrencyKind by remember {
             mutableStateOf(CurrencyKind.None)
         }
 
@@ -35,15 +36,31 @@ class HomePage: Screen {
 
         val overallCurrencies = screenModel.overallCurrencies
         var isDialogUpFolded by remember {
-            mutableStateOf(true)
+            mutableStateOf(false)
         }
 
-        if (isDialogUpFolded){
+        if (isDialogUpFolded && selectedCurrencyType != CurrencyKind.None){
             ChooseCurrencyDialog(
                 currenciesList = overallCurrencies,
                 currencyKind = selectedCurrencyType,
-                onConfirmClick = {isDialogUpFolded = false},
-                onDismiss = {isDialogUpFolded = true}
+                onConfirmClick = {
+                    currencyKey ->
+                    if (selectedCurrencyType is CurrencyKind.FromSource){
+                        screenModel.passEvent(HomePageUIEvent.SaveFromSourceCurrencyKey(
+                            code = currencyKey.name
+                        ))
+                    }else if(selectedCurrencyType is CurrencyKind.ToTarget){
+                        screenModel.passEvent(HomePageUIEvent.SaveToTargetCurrencyKey(
+                            code = currencyKey.name
+                        ))
+                    }
+                    selectedCurrencyType = CurrencyKind.None
+                    isDialogUpFolded = false
+                },
+                onDismiss = {
+                    selectedCurrencyType = CurrencyKind.None
+                    isDialogUpFolded = true
+                }
             )
         }
 
@@ -65,7 +82,18 @@ class HomePage: Screen {
                 },
                 onRatesRefresh = {
                     screenModel.passEvent(HomePageUIEvent.RefreshRatesEvent)
+                },
+                onChooseCurrencyKind = {
+                    currencyKind ->
+                    isDialogUpFolded = true
+                    selectedCurrencyType = currencyKind
                 }
+            )
+
+            HomePageBody(
+                fromSource = currencyFrom,
+                toTarget = currencyTo,
+                userInputAmount = amountDigits
             )
         }
     }

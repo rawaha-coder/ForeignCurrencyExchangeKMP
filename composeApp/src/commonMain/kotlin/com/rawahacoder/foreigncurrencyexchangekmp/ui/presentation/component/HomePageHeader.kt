@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,12 +19,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyKey
+import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyKind
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyObject
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RateCondition
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RequestState
@@ -50,9 +53,9 @@ import com.rawahacoder.foreigncurrencyexchangekmp.ui.theme.headerColor
 import com.rawahacoder.foreigncurrencyexchangekmp.ui.theme.staleColor
 import com.rawahacoder.foreigncurrencyexchangekmp.utility.showCurrentDateTime
 import foreigncurrencyexchangekmp.composeapp.generated.resources.Res
+import foreigncurrencyexchangekmp.composeapp.generated.resources.exchange
 import foreigncurrencyexchangekmp.composeapp.generated.resources.money_exchange
 import foreigncurrencyexchangekmp.composeapp.generated.resources.moneyexchange
-
 import org.jetbrains.compose.resources.painterResource
 
 
@@ -65,7 +68,8 @@ fun HomePageHeader(
     amountNumber: Double,
     onAmountNumberChange: (Double) -> Unit,
     onRatesRefresh: () -> Unit,
-    onSwitchClick: () -> Unit
+    onSwitchClick: () -> Unit,
+    onChooseCurrencyKind: (CurrencyKind) -> Unit,
 ){
     Column(
         modifier = Modifier
@@ -85,7 +89,8 @@ fun HomePageHeader(
         CurrencyInputs(
             source = source,
             target = target,
-            onSwitchClick = onSwitchClick
+            onSwitchClick = onSwitchClick,
+            onChooseCurrencyKind = onChooseCurrencyKind
         )
 
         Spacer(modifier = Modifier.height(26.dp))
@@ -138,10 +143,8 @@ fun RatesCondition(
         if (status == RateCondition.StaleCondition){
             IconButton(onClick = onRatesRefresh){
                 Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(Res.drawable.money_exchange),
+                    Icons.Filled.Refresh,
                     contentDescription = "Refresh icon",
-                    tint = staleColor
                 )
             }
         }
@@ -211,6 +214,7 @@ fun RowScope.ViewCurrency(
 fun CurrencyInputs(
     source: RequestState<CurrencyObject>,
     target: RequestState<CurrencyObject>,
+    onChooseCurrencyKind: (CurrencyKind) -> Unit,
     onSwitchClick: () -> Unit
 ){
 
@@ -229,7 +233,11 @@ fun CurrencyInputs(
             titleHolder = "From currency",
             currencyName = source,
             onClick = {if (source.isSuccess()) {
-
+                onChooseCurrencyKind(
+                    CurrencyKind.FromSource(currencyCode = CurrencyKey.valueOf(
+                        source.getSuccessData().code
+                    ))
+                )
                 }
             }
         )
@@ -246,8 +254,8 @@ fun CurrencyInputs(
             }
         ){
             Icon(
-                //modifier = Modifier.size(52.dp),
-                painter = painterResource(Res.drawable.moneyexchange),
+                modifier = Modifier.size(80.dp).fillMaxSize(),
+                painter = painterResource(Res.drawable.money_exchange),
                 contentDescription = "Switch currency icon",
                 tint = Color.White
             )
@@ -258,8 +266,13 @@ fun CurrencyInputs(
         ViewCurrency(
             titleHolder = "to",
             currencyName = target,
-            onClick = {if (source.isSuccess()) {
-
+            onClick = {
+                if (target.isSuccess()) {
+                    onChooseCurrencyKind(
+                        CurrencyKind.ToTarget(currencyCode = CurrencyKey.valueOf(
+                            target.getSuccessData().code
+                        ))
+                    )
             }
             }
         )

@@ -15,6 +15,7 @@ import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.CurrencyObject
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RateCondition
 import com.rawahacoder.foreigncurrencyexchangekmp.domain.model.RequestState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -24,6 +25,8 @@ import kotlinx.datetime.Clock
 sealed class HomePageUIEvent{
     data object RefreshRatesEvent : HomePageUIEvent()
     data object CurrenciesSwitch : HomePageUIEvent()
+    data class SaveFromSourceCurrencyKey(val code: String): HomePageUIEvent()
+    data class SaveToTargetCurrencyKey(val code: String): HomePageUIEvent()
 }
 
 class HomePageViewModel(
@@ -87,6 +90,7 @@ class HomePageViewModel(
                 println("testing= Save ${it.code}")
                 mongoDBRepo.addCurrencyAmountData(it)
             }
+            _overallCurrencies.clear()
             println("testing= Update the _overallCurrencies")
             _overallCurrencies.addAll(readNewData.getSuccessData())
         }else if(readNewData.isError()){
@@ -108,6 +112,12 @@ class HomePageViewModel(
             }
             is HomePageUIEvent.CurrenciesSwitch -> {
                 currenciesSwitch()
+            }
+            is HomePageUIEvent.SaveFromSourceCurrencyKey -> {
+                storeFromCurrency(event.code)
+            }
+            is HomePageUIEvent.SaveToTargetCurrencyKey -> {
+                storeToCurrency(event.code)
             }
         }
     }
@@ -145,6 +155,18 @@ class HomePageViewModel(
                 }
 
             }
+        }
+    }
+
+    private fun storeFromCurrency(keyCurrency: String){
+        screenModelScope.launch(Dispatchers.IO) {
+            preferences.storeFromCurrencyKey(keyCurrency)
+        }
+    }
+
+    private fun storeToCurrency(keyCurrency: String){
+        screenModelScope.launch(Dispatchers.IO) {
+            preferences.storeToCurrencyKey(keyCurrency)
         }
     }
 }

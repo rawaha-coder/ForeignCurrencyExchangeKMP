@@ -23,3 +23,11 @@ fun showCurrentDateTime(): String {
     return "$dayOfMonth$suffixVal $month $year"
 
 }
+
+fun exchangeRateCalculation(fromSource: Double, toTarget: Double): Double{
+    return  toTarget / fromSource
+}
+
+fun convertUserAmountIntoExchangeAmount(userInputAmount: Double, exchangeRateAmount: Double): Double{
+    return userInputAmount * exchangeRateAmount
+}
