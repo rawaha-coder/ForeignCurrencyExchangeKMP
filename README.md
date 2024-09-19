@@ -9,7 +9,11 @@ What It Is: Compose Multiplatform is an extension of Jetpack Compose, Google’s
 
 ## Screenshots
 
-
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/cec14e14-e372-4d20-bdba-6a5a77e5e558" alt="Compose Multiplatform"/>
+  <img src="https://github.com/user-attachments/assets/e5f341bd-0b09-453c-b7a7-589a5cdacbaa" alt="Compose Multiplatform"/>
+  <img src="https://github.com/user-attachments/assets/1c53dc3a-044b-4bbd-bb58-7b6225d6ea93" alt="Compose Multiplatform"/>
+</p>
 
 ## Libraries and tools Used
 
